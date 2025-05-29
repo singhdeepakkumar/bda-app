@@ -1,0 +1,60 @@
+name: Deploy App with Promoted Model
+
+on:
+  repository_dispatch:
+    types: [deploy-app-model]
+
+env:
+  DOCKER_IMAGE: ${{ secrets.DOCKER_HUB_USERNAME }}/TelecomCustomerChurn-app
+  MODEL_NAME: DecisionTreeTelecomCustomerChurnModel
+  MLFLOW_TRACKING_URI: https://dagshub.com/singhdeepakkumar/my-bda-repo.mlflow
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout app repo
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.9"
+
+      - name: Install dependencies
+        run: pip install mlflow
+
+      - name: Download promoted model from MLflow
+        run: |
+          mlflow models download \
+            -m "models:/${{ env.MODEL_NAME }}/Production" \
+            -d app_model
+
+          echo "${{ github.event.client_payload.model_version }}" > app_model/model_version.txt
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+
+      - name: Build and push Docker image
+        run: |
+          VERSION=model-${{ github.event.client_payload.model_version }}
+          docker build -t $DOCKER_IMAGE:$VERSION .
+          docker push $DOCKER_IMAGE:$VERSION
+
+      #- name: SSH into GCP VM and deploy container
+      #  uses: appleboy/ssh-action@v0.1.6
+      #  with:
+      #    host: ${{ secrets.GCP_VM_IP }}
+      #    username: ${{ secrets.GCP_VM_USER }}
+      #    key: ${{ secrets.GCP_VM_SSH }}
+      #    script: |
+      #      docker pull $DOCKER_IMAGE:model-${{ github.event.client_payload.model_version }}
+      #      docker stop churn-app || true
+      #      docker rm churn-app || true
+      #      docker run -d -p 5000:5000 --name churn-app \
+      #        -e MODEL_VERSION=${{ github.event.client_payload.model_version }} \
+      #       $DOCKER_IMAGE:model-${{ github.event.client_payload.model_version }}
