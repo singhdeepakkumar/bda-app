@@ -3,9 +3,9 @@ name: Deploy App with Promoted Model
 on:
   repository_dispatch:
     types: [deploy-app-model]
-
+  workflow_dispatch:
 env:
-  DOCKER_IMAGE: ${{ secrets.DOCKER_HUB_USERNAME }}/TelecomCustomerChurn-app
+  DOCKER_IMAGE: ${{ secrets.DOCKER_HUB_USERNAME }}/telecomcustomerchurn-app
   MODEL_NAME: DecisionTreeTelecomCustomerChurnModel
   MLFLOW_TRACKING_URI: https://dagshub.com/singhdeepakkumar/my-bda-repo.mlflow
 
