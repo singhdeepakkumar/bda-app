@@ -37,7 +37,7 @@ jobs:
 
           model_uri = f"models:/{os.getenv('MODEL_NAME')}/Production"
           print(f"Downloading model from: {model_uri}")
-          ModelsArtifactRepository.download_artifacts(model_uri, dst_path="app_model")
+          ModelsArtifactRepository(model_uri).download_artifacts("", dst_path="app_model")
 
           version_file = os.path.join("app_model", "model_version.txt")
           with open(version_file, "w") as f:
