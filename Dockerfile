@@ -1,4 +1,4 @@
-FROM python:3.9-alpine
+FROM python:3.9
 COPY . /app
 COPY app_model /app/app_model
 RUN apt-get update && apt-get install -y gcc
