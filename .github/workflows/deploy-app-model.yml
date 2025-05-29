@@ -27,11 +27,19 @@ jobs:
 
       - name: Download promoted model from MLflow
         run: |
-          mlflow models download \
-            -m "models:/${{ env.MODEL_NAME }}/Production" \
-            -d app_model
+          python <<EOF
+          import mlflow
+          import os
 
-          echo "${{ github.event.client_payload.model_version }}" > app_model/model_version.txt
+          model_uri = f"models:/${os.getenv('MODEL_NAME')}/Production"
+          print(f"Downloading model from {model_uri} ...")
+          mlflow.artifacts.download_artifacts(model_uri=model_uri, dst_path="app_model")
+
+          version_file = os.path.join("app_model", "model_version.txt")
+          with open(version_file, "w") as f:
+              f.write("${{ github.event.client_payload.model_version }}")
+          print("Model downloaded and version written.")
+          EOF
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
