@@ -33,11 +33,21 @@ jobs:
         run: |
           python <<EOF
           import os
-          from mlflow.store.artifact.models_artifact_repo import ModelsArtifactRepository
+          import mlflow
+          from mlflow.tracking import MlflowClient
 
-          model_uri = f"models:/{os.getenv('MODEL_NAME')}/Production"
-          print(f"Downloading model from: {model_uri}")
-          ModelsArtifactRepository(model_uri).download_artifacts("", dst_path="app_model")
+          model_name = os.environ["MODEL_NAME"]
+          model_uri = f"models:/{model_name}@production"
+          target_dir = "app_model"
+
+          print(f"Downloading model from alias: production ({model_uri})")
+
+          mlflow.artifacts.download_artifacts(
+              artifact_uri=model_uri,
+              dst_path=target_dir
+          )
+
+          print(f"Model downloaded to: {target_dir}")
 
           version_file = os.path.join("app_model", "model_version.txt")
           with open(version_file, "w") as f:
