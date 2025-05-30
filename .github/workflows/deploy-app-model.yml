@@ -84,14 +84,14 @@ jobs:
           sed "s|IMAGE_TAG|$IMAGE_TAG|g" k8s/deployment.yml.template > k8s/rendered/deployment.yml
           cp k8s/service.yml k8s/rendered/service.yml
 
-      - name: Ensure Minikube is running and configured
-        run: |
-          echo "Starting Minikube..."
-          minikube start --driver=docker || echo "Minikube already running or started"
-          echo "Setting kubectl context to Minikube..."
-          kubectl config use-context minikube
-          echo "Minikube status:"
-          minikube status
+      #- name: Ensure Minikube is running and configured
+      #  run: |
+      #    echo "Starting Minikube..."
+      #    minikube start --driver=docker || echo "Minikube already running or started"
+      #    echo "Setting kubectl context to Minikube..."
+      #    kubectl config use-context minikube
+      #    echo "Minikube status:"
+      #    minikube status
 
       - name: Apply Kubernetes deployment
         run: |
