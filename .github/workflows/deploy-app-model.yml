@@ -94,6 +94,8 @@ jobs:
       #    minikube status
 
       - name: Apply Kubernetes deployment
+        env:
+          KUBECONFIG: /home/github-runner/.kube/config
         run: |
           kubectl apply --insecure-skip-tls-verify=true -f k8s/rendered/deployment.yml --validate=false
           kubectl apply --insecure-skip-tls-verify=true -f k8s/rendered/service.yml
