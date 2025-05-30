@@ -81,10 +81,10 @@ jobs:
         run: |
           IMAGE_TAG="${{ env.PROMOTED_VERSION }}"
           mkdir -p k8s/rendered
-          sed "s|IMAGE_TAG|$IMAGE_TAG|g" k8s/deployment.yaml.template > k8s/rendered/deployment.yaml
-          cp k8s/service.yaml k8s/rendered/service.yaml
+          sed "s|IMAGE_TAG|$IMAGE_TAG|g" k8s/deployment.yml.template > k8s/rendered/deployment.yml
+          cp k8s/service.yml k8s/rendered/service.yml
 
       - name: Deploy to Minikube
         run: |
-          kubectl apply -f k8s/rendered/deployment.yaml
-          kubectl apply -f k8s/rendered/service.yaml
+          kubectl apply -f k8s/rendered/deployment.yml
+          kubectl apply -f k8s/rendered/service.yml
