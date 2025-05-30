@@ -4,10 +4,15 @@ on:
   repository_dispatch:
     types: [deploy-app-model]
   workflow_dispatch:
+    inputs:
+      model_version:
+        description: "Enter model version to deploy"
+        required: true
 env:
   DOCKER_IMAGE: ${{ secrets.DOCKER_HUB_USERNAME }}/telecomcustomerchurn-app
   MODEL_NAME: DecisionTreeTelecomCustomerChurnModel
   MLFLOW_TRACKING_URI: https://dagshub.com/singhdeepakkumar/my-bda-repo.mlflow
+  PROMOTED_VERSION: model-${{ github.event.inputs.model_version || github.event.client_payload.model_version }}
 
 jobs:
   deploy:
@@ -28,8 +33,6 @@ jobs:
           pip install mlflow[extras]
 
       - name: Download promoted model from MLflow
-        env:
-          PROMOTED_VERSION: ${{ github.event.client_payload.model_version }}
         run: |
           python <<EOF
           import os
@@ -64,7 +67,7 @@ jobs:
 
       - name: Build and push Docker image
         run: |
-          VERSION=model-${{ github.event.client_payload.model_version }}
+          VERSION=model-"${{ env.PROMOTED_VERSION }}"
           docker build -t $DOCKER_IMAGE:$VERSION .
           docker push $DOCKER_IMAGE:$VERSION
 
