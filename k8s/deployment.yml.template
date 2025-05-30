@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: customer-churn
-          image: deepakkumarsingh/telecomcutelecomcustomerchurn-app:IMAGE_TAG
+          image: deepakkumarsingh/telecomcustomerchurn-app:IMAGE_TAG
           ports:
             - containerPort: 5000
           env:
