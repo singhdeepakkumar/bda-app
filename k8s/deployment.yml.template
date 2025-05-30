@@ -15,7 +15,7 @@ spec:
         app: customer-churn
     spec:
       containers:
-        - name: churn-app
+        - name: customer-churn
           image: deepakkumarsingh/telecomcutelecomcustomerchurn-app:IMAGE_TAG
           ports:
             - containerPort: 5000
