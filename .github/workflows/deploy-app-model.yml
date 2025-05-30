@@ -16,7 +16,7 @@ env:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted]
 
     steps:
       - name: Checkout app repo
@@ -65,22 +65,25 @@ jobs:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_PASSWORD }}
 
-      - name: Build and push Docker image
+      - name: Build the docker image
         run: |
-          VERSION="${{ env.PROMOTED_VERSION }}"
-          docker build -t $DOCKER_IMAGE:$VERSION .
-          docker push $DOCKER_IMAGE:$VERSION
+          IMAGE_TAG="${{ env.PROMOTED_VERSION }}"
+          docker build -t $DOCKER_IMAGE:$IMAGE_TAG .
+          docker push $DOCKER_IMAGE:$IMAGE_TAG
 
-      #- name: SSH into GCP VM and deploy container
-      #  uses: appleboy/ssh-action@v0.1.6
-      #  with:
-      #    host: ${{ secrets.GCP_VM_IP }}
-      #    username: ${{ secrets.GCP_VM_USER }}
-      #    key: ${{ secrets.GCP_VM_SSH }}
-      #    script: |
-      #      docker pull $DOCKER_IMAGE:model-${{ github.event.client_payload.model_version }}
-      #      docker stop churn-app || true
-      #      docker rm churn-app || true
-      #      docker run -d -p 5000:5000 --name churn-app \
-      #        -e MODEL_VERSION=${{ github.event.client_payload.model_version }} \
-      #       $DOCKER_IMAGE:model-${{ github.event.client_payload.model_version }}
+      - name: Push the docker image to Docker Hub
+        run: |
+          IMAGE_TAG="${{ env.PROMOTED_VERSION }}"
+          docker push $DOCKER_IMAGE:$IMAGE_TAG
+
+      - name: Render Kubernetes manifests
+        run: |
+          IMAGE_TAG="${{ env.PROMOTED_VERSION }}"
+          mkdir -p k8s/rendered
+          sed "s|IMAGE_TAG|$IMAGE_TAG|g" k8s/deployment.yaml.template > k8s/rendered/deployment.yaml
+          cp k8s/service.yaml k8s/rendered/service.yaml
+
+      - name: Deploy to Minikube
+        run: |
+          kubectl apply -f k8s/rendered/deployment.yaml
+          kubectl apply -f k8s/rendered/service.yaml
