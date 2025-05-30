@@ -67,7 +67,7 @@ jobs:
 
       - name: Build and push Docker image
         run: |
-          VERSION=model-"${{ env.PROMOTED_VERSION }}"
+          VERSION="${{ env.PROMOTED_VERSION }}"
           docker build -t $DOCKER_IMAGE:$VERSION .
           docker push $DOCKER_IMAGE:$VERSION
 
