@@ -3,19 +3,19 @@ kind: Deployment
 metadata:
   name: customer-churn-app-deployment
   labels:
-    app: customer-churn
+    app: customer-churn-app
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: customer-churn
+      app: customer-churn-app
   template:
     metadata:
       labels:
-        app: customer-churn
+        app: customer-churn-app
     spec:
       containers:
-        - name: customer-churn
+        - name: customer-churn-app
           image: deepakkumarsingh/telecomcustomerchurn-app:IMAGE_TAG
           ports:
             - containerPort: 5000
