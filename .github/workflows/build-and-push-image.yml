@@ -1,4 +1,4 @@
-name: Deploy App with Promoted Model
+name: Build and Push docker image of the candidate model to the docker dub
 
 on:
   repository_dispatch:
@@ -41,10 +41,10 @@ jobs:
           from mlflow.tracking import MlflowClient
 
           model_name = os.environ["MODEL_NAME"]
-          model_uri = f"models:/{model_name}@production"
+          model_uri = f"models:/{model_name}@candidate"
           target_dir = "app_model"
 
-          print(f"Downloading model from alias: production ({model_uri})")
+          print(f"Downloading model from alias: candidate ({model_uri})")
 
           mlflow.artifacts.download_artifacts(
               artifact_uri=model_uri,
